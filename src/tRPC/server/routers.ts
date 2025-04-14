@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth";
 import { procedure, route } from "./trpc";
 import { headers } from "next/headers";
-
+import userRouter from "./userRoutes";
+import { z } from "zod";
+import prisma from "@/lib/prisma";
 export const approuter = route({
 	// sayhi: procedure.query(() => {
 	// 	return { message: "hi, There !" };
@@ -18,6 +20,31 @@ export const approuter = route({
 			headers: await headers(),
 		});
 	}),
+
+	user: userRouter,
+	getUserData: procedure
+		.input(
+			z.object({
+				userId: z.string(),
+			})
+		)
+		.query(async ({ input }) => {
+			const user = await prisma.user.findUnique({
+				where: { id: input.userId },
+				include: {
+					medicalRecords: true,
+					insurances: true,
+					appointments: true,
+					prescriptions: true,
+				},
+			});
+
+			if (!user) {
+				throw new Error("User not found");
+			}
+
+			return user;
+		}),
 });
 
 export type AppRouter = typeof approuter;

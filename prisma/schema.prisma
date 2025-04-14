@@ -17,12 +17,24 @@ model User {
   id            String    @default(cuid()) @id
   name          String?
   email         String?   @unique
+  phone         String?
+  dateOfBirth   DateTime?
+  age           Int?
+  gender        String?
+  bloodGroup    String?
+  chronicConditions ChronicCondition[]
+  allergies     Allergy[]
+  currentMedications CurrentMedication[]
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   emailVerified Boolean
   image         String?
   sessions      Session[]
   accounts      Account[]
+  insurances    Insurance[]
+  medicalRecords MedicalRecord[]
+  appointments  Appointment[]
+  prescriptions Prescription[]
 
   @@map("user")
 }
@@ -70,4 +82,120 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Insurance {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider      String
+  policyNumber  String
+  groupNumber   String?
+  coverageType  String
+  startDate     DateTime
+  endDate       DateTime?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("insurance")
+}
+
+model MedicalRecord {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recordType    String    // e.g., "Diagnosis", "Lab Result", "Imaging"
+  title         String
+  description   String?
+  date          DateTime
+  doctorName    String?
+  hospitalName  String?
+  fileUrl       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("medical_record")
+}
+
+model Appointment {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctorName    String
+  hospitalName  String?
+  date          DateTime
+  time          String
+  type          String    // e.g., "Checkup", "Follow-up", "Emergency"
+  status        String    @default("Scheduled") // e.g., "Scheduled", "Completed", "Cancelled"
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("appointment")
+}
+
+model Prescription {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctorName    String
+  medication    String
+  dosage        String
+  frequency     String
+  startDate     DateTime
+  endDate       DateTime?
+  refills       Int       @default(0)
+  status        String    @default("Active") // e.g., "Active", "Completed", "Cancelled"
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("prescription")
+}
+
+model ChronicCondition {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  condition     String
+  diagnosisDate DateTime?
+  severity      String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("chronic_condition")
+}
+
+model Allergy {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          String    // e.g., "Medication", "Food", "Environmental"
+  name          String
+  severity      String?
+  reaction      String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("allergy")
+}
+
+model CurrentMedication {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  dosage        String
+  frequency     String
+  startDate     DateTime
+  endDate       DateTime?
+  prescribedBy  String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("current_medication")
 }
