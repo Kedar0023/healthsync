@@ -12,11 +12,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useLogout } from "@/hooks/useLogout";
+import { trpc } from "@/tRPC/client/client";
 
 const Navbar = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	// This would come from your auth state in a real app
-	const isLoggedIn = true;
+	const { handleLogout, isLoading } = useLogout();
+	const { data: session } = trpc.getSession.useQuery();
+	const isLoggedIn = !!session?.user;
 
 	return (
 		<header className="bg-background border-b sticky top-0 z-50 shadow-sm">
@@ -41,9 +44,11 @@ const Navbar = () => {
 					<Link href="/about" className="text-foreground hover:text-primary transition-colors">
 						About
 					</Link>
-					<Link href="/user/dashboard" className="text-foreground hover:text-primary transition-colors">
-						Dashboard
-					</Link>
+					{isLoggedIn && (
+						<Link href="/user/dashboard" className="text-foreground hover:text-primary transition-colors">
+							Dashboard
+						</Link>
+					)}
 				</nav>
 
 				{/* User menu or Auth buttons */}
@@ -54,10 +59,9 @@ const Navbar = () => {
 								<DropdownMenuTrigger asChild>
 									<Button variant="ghost" className="flex items-center gap-2 p-1">
 										<Avatar className="h-8 w-8">
-											<AvatarImage src="/profile-placeholder.jpg" alt="User" />
-											<AvatarFallback>JA</AvatarFallback>
+											<AvatarImage src={session.user.image || "/profile-placeholder.jpg"} alt={session.user.name || "User"} />
+											<AvatarFallback>{session.user.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
 										</Avatar>
-										<span className="font-medium">Jack Adams</span>
 									</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">
@@ -70,7 +74,13 @@ const Navbar = () => {
 									<DropdownMenuItem asChild>
 										<Link href="/settings">Settings</Link>
 									</DropdownMenuItem>
-									<DropdownMenuItem>Logout</DropdownMenuItem>
+									<DropdownMenuItem 
+										onClick={handleLogout}
+										disabled={isLoading}
+										className="text-destructive focus:text-destructive"
+									>
+										{isLoading ? "Logging out..." : "Logout"}
+									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 							<ModeToggle />
@@ -78,7 +88,7 @@ const Navbar = () => {
 					) : (
 						<>
 							<Button variant="ghost" asChild>
-								<Link href="/login">Login</Link>
+								<Link href="/auth/login">Login</Link>
 							</Button>
 							<Button asChild>
 								<Link href="/auth/signup">Sign Up</Link>
@@ -118,13 +128,15 @@ const Navbar = () => {
 						>
 							About
 						</Link>
-						<Link
-							href="/user/dashboard"
-							className="text-foreground hover:text-primary transition-colors py-2"
-							onClick={() => setIsMenuOpen(false)}
-						>
-							Dashboard
-						</Link>
+						{isLoggedIn && (
+							<Link
+								href="/user/dashboard"
+								className="text-foreground hover:text-primary transition-colors py-2"
+								onClick={() => setIsMenuOpen(false)}
+							>
+								Dashboard
+							</Link>
+						)}
 
 						{isLoggedIn ? (
 							<>
@@ -142,15 +154,25 @@ const Navbar = () => {
 								>
 									Settings
 								</Link>
-								<Button className="mt-2">Logout</Button>
+								<Button 
+									onClick={() => {
+										setIsMenuOpen(false);
+										handleLogout();
+									}}
+									disabled={isLoading}
+									variant="destructive"
+									className="mt-2"
+								>
+									{isLoading ? "Logging out..." : "Logout"}
+								</Button>
 							</>
 						) : (
 							<div className="flex flex-col space-y-2 mt-2">
 								<Button variant="outline" asChild>
-									<Link href="/login">Login</Link>
+									<Link href="/auth/login">Login</Link>
 								</Button>
 								<Button asChild>
-									<Link href="/signup">Sign Up</Link>
+									<Link href="/auth/signup">Sign Up</Link>
 								</Button>
 							</div>
 						)}
