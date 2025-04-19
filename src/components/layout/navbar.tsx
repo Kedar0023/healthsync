@@ -10,14 +10,25 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HeartHandshake, Menu, X } from "lucide-react";
+import { CloudCog, HeartHandshake, Menu, X } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { trpc } from "@/tRPC/client/client";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 
 const Navbar = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 	const userdata = trpc.getSession.useQuery();
+	const logoutMutation = trpc.logout.useMutation();
+	const router = useRouter();
 
 	if (userdata.isLoading) {
 		return <div>Loading...</div>;
@@ -27,17 +38,27 @@ const Navbar = () => {
 		return <div>Error: {userdata.error.message}</div>;
 	}
 
-	if(!userdata.data?.user && !userdata.isLoading){
+	if (!userdata.data?.user && !userdata.isLoading) {
 		redirect("/auth/login")
 	}
 	// This would come from your auth state in a real app
 	const isLoggedIn = true;
 
+	const handleLogout = async () => {
+		try {
+			await logoutMutation.mutateAsync();
+			router.push("/auth/login");
+		} catch (error) {
+			console.error("Logout failed", error);
+		}
+	};
+	console.log(userdata.data?.user)
+
 	return (
 		<header className="bg-background border-b sticky top-0 z-50 shadow-sm">
 			<div className="container mx-auto px-4 py-3 flex justify-between items-center">
 				<Link href="/" className="text-2xl font-bold text-primary flex items-center gap-2">
-<HeartHandshake/>
+					<HeartHandshake />
 					HealthSync
 				</Link>
 
@@ -84,7 +105,9 @@ const Navbar = () => {
 									<DropdownMenuItem asChild>
 										<Link href="/settings">Settings</Link>
 									</DropdownMenuItem>
-									<DropdownMenuItem>Logout</DropdownMenuItem>
+									<DropdownMenuItem onClick={() => setShowLogoutDialog(true)}>
+										Logout
+									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 							<ModeToggle />
@@ -156,7 +179,7 @@ const Navbar = () => {
 								>
 									Settings
 								</Link>
-								<Button className="mt-2">Logout</Button>
+								<Button className="mt-2" onClick={() => setShowLogoutDialog(true)}>Logout</Button>
 							</>
 						) : (
 							<div className="flex flex-col space-y-2 mt-2">
@@ -171,6 +194,26 @@ const Navbar = () => {
 					</nav>
 				</div>
 			)}
+
+			{/* Logout Confirmation Dialog */}
+			<Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Confirm Logout</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to logout from your account?
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+							Cancel
+						</Button>
+						<Button onClick={handleLogout} variant="destructive">
+							Logout
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</header>
 	);
 };

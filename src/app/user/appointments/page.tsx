@@ -4,6 +4,7 @@ import Navbar from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { trpc } from "@/tRPC/client/client";
 import { Appointments } from "@/components/dashboard/appointments";
+import { Button } from "@/components/ui/button";
 
 const AppointmentsPage: React.FC = () => {
     // Get session first to get user ID
@@ -25,7 +26,9 @@ const AppointmentsPage: React.FC = () => {
             </div>
         );
     }
-
+    const formatDate = (date: Date | string) => {
+        return new Date(date).toLocaleDateString();
+    };
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
@@ -41,18 +44,33 @@ const AppointmentsPage: React.FC = () => {
                         <div className="grid grid-cols-1 gap-4">
                             <div>
                                 <h2 className="text-xl font-semibold mb-4">Today</h2>
-                                <div className="bg-muted/50 rounded-lg p-4 min-h-[150px] flex items-center justify-center">
+                                <div className="bg-muted/50 rounded-lg p-4 min-h-[150px] flex items-start justify-start">
                                     {userData?.appointments?.some(
                                         (apt) => new Date(apt.date).toDateString() === new Date().toDateString()
                                     ) ? (
-                                        <Appointments
-                                            appointments={userData?.appointments?.filter(
-                                                (apt) => new Date(apt.date).toDateString() === new Date().toDateString()
-                                            )}
-                                        />
+                                        userData.appointments
+                                            .filter(apt => new Date(apt.date).toDateString() === new Date().toDateString())
+                                            .map(appointment => (
+                                                <div key={appointment.id} className="border rounded-lg p-4 hover:opacity-50 w-full">
+                                                    <div className="flex justify-between items-center">
+                                                        <div>
+                                                            <h3 className="font-medium">{appointment.doctorName}</h3>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {formatDate(appointment.date)} at {appointment.time}
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground mt-1">
+                                                                Type: {appointment.type}
+                                                            </p>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            ))
                                     ) : (
-                                        <p className="text-muted-foreground">No appointments scheduled for today</p>
+                                        <p className="text-muted-foreground text-sm">No appointments for today 😌</p>
                                     )}
+
+
                                 </div>
                             </div>
 

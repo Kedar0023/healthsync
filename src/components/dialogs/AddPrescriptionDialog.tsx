@@ -20,15 +20,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/tRPC/client/client";
 import { toast } from "sonner";
 import type { TRPCClientErrorLike } from "@trpc/client";
+import { AddMedicationDialog } from "./AddMedicationDialog";
 
 const formSchema = z.object({
+    title: z.string().min(1, "Title is required"),
     doctorName: z.string().min(1, "Doctor name is required"),
-    medication: z.string().min(1, "Medication name is required"),
-    dosage: z.string().min(1, "Dosage is required"),
-    frequency: z.string().min(1, "Frequency is required"),
+    medicationId: z.string().min(1, "Medication is required"),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().optional(),
     refills: z.number().min(0, "Refills must be 0 or greater"),
@@ -37,17 +38,28 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface Medication {
+    id: string;
+    name: string;
+    dosage: string;
+    frequency: string;
+    when: string;
+    isRestRequired: boolean;
+}
+
 export function AddPrescriptionDialog() {
     const [open, setOpen] = useState(false);
     const utils = trpc.useUtils();
 
+    // Fetch available medications
+    const { data: medications, isLoading: isMedicationsLoading } = trpc.user.getMedications.useQuery();
+
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            title: "",
             doctorName: "",
-            medication: "",
-            dosage: "",
-            frequency: "",
+            medicationId: "",
             startDate: "",
             endDate: "",
             refills: 0,
@@ -55,7 +67,7 @@ export function AddPrescriptionDialog() {
         },
     });
 
-    const { mutate: addPrescription } = trpc.user.addPrescription.useMutation({
+    const { mutate: addPrescription, isPending } = trpc.user.addPrescription.useMutation({
         onSuccess: () => {
             toast.success("Prescription added successfully");
             setOpen(false);
@@ -68,11 +80,7 @@ export function AddPrescriptionDialog() {
     });
 
     function onSubmit(values: FormValues) {
-        addPrescription({
-            ...values,
-            startDate: new Date(values.startDate),
-            endDate: values.endDate ? new Date(values.endDate) : undefined,
-        });
+        addPrescription(values);
     }
 
     return (
@@ -88,6 +96,19 @@ export function AddPrescriptionDialog() {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
                             control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Prescription Title</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Enter a title for this prescription" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
                             name="doctorName"
                             render={({ field }) => (
                                 <FormItem>
@@ -101,39 +122,35 @@ export function AddPrescriptionDialog() {
                         />
                         <FormField
                             control={form.control}
-                            name="medication"
+                            name="medicationId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Medication</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Enter medication name" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="dosage"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Dosage</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Enter dosage" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="frequency"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Frequency</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Enter frequency" {...field} />
-                                    </FormControl>
+                                    <div className="flex justify-between items-center">
+                                        <FormLabel>Medication</FormLabel>
+                                        <AddMedicationDialog />
+                                    </div>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        disabled={isMedicationsLoading || !medications?.length}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select medication" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {medications?.map((medication: Medication) => (
+                                                <SelectItem key={medication.id} value={medication.id}>
+                                                    {medication.name} ({medication.dosage}, {medication.frequency})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {isMedicationsLoading && <p className="text-sm text-muted-foreground">Loading medications...</p>}
+                                    {!isMedicationsLoading && !medications?.length && (
+                                        <p className="text-sm text-muted-foreground">No medications available. Add one first.</p>
+                                    )}
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -171,7 +188,15 @@ export function AddPrescriptionDialog() {
                                 <FormItem>
                                     <FormLabel>Refills</FormLabel>
                                     <FormControl>
-                                        <Input type="number" min={0} {...field} />
+                                        <Input
+                                            type="number"
+                                            min={0}
+                                            value={field.value !== undefined && field.value !== null ? String(field.value) : ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                field.onChange(value === '' ? 0 : +value);
+                                            }}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -190,7 +215,9 @@ export function AddPrescriptionDialog() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Add Prescription</Button>
+                        <Button type="submit" disabled={isPending || isMedicationsLoading || !medications?.length}>
+                            {isPending ? "Adding Prescription..." : "Add Prescription"}
+                        </Button>
                     </form>
                 </Form>
             </DialogContent>

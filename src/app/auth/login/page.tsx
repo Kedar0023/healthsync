@@ -26,7 +26,7 @@ export default function MyForm() {
 	const router = useRouter();
 	const session = trpc.getSession.useQuery();
 	if (session.data?.user) {
-		redirect("/home");
+		redirect("/user/dashboard");
 	}
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -44,7 +44,7 @@ export default function MyForm() {
 				{
 					email: values.email,
 					password: values.password,
-					callbackURL: "/",
+					callbackURL: "/user/dashboard",
 				},
 				{
 					onRequest: () => {

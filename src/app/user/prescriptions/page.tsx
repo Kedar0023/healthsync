@@ -37,6 +37,8 @@ const PrescriptionsPage: React.FC = () => {
         );
     }
 
+    const today = new Date()
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
@@ -137,13 +139,19 @@ const PrescriptionsPage: React.FC = () => {
 
                         <TabsContent value="active" className="mt-6">
                             <Prescriptions
-                                prescriptions={userData?.prescriptions?.filter(p => !p.isExpired)}
+                                prescriptions={userData?.prescriptions?.filter(p => {
+                                    if (!p.endDate) return true
+                                    return new Date(p.endDate) >= today
+                                })}
                             />
                         </TabsContent>
 
                         <TabsContent value="past" className="mt-6">
                             <Prescriptions
-                                prescriptions={userData?.prescriptions?.filter(p => p.isExpired)}
+                                prescriptions={userData?.prescriptions?.filter(p => {
+                                    if (!p.endDate) return false
+                                    return new Date(p.endDate) < today
+                                })}
                             />
                         </TabsContent>
 

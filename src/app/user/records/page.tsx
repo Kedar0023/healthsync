@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { trpc } from "@/tRPC/client/client";
@@ -7,8 +7,13 @@ import { MedicalRecords } from "@/components/dashboard/medical-records";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddMedicalRecordDialog } from "@/components/dialogs/AddMedicalRecordDialog";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "sonner";
 
 const MedicalRecordsPage: React.FC = () => {
+    const [isExporting, setIsExporting] = useState(false);
+
     // Get session first to get user ID
     const { data: session, isLoading: sessionLoading } = trpc.getSession.useQuery();
 
@@ -36,6 +41,137 @@ const MedicalRecordsPage: React.FC = () => {
     const otherRecords = userData?.medicalRecords?.filter(record =>
         !["Lab Test", "Imaging", "Consultation"].includes(record.recordType)
     ) || [];
+
+    const formatDate = (date: Date | string) => {
+        return new Date(date).toLocaleDateString();
+    };
+
+    const exportToPDF = () => {
+        if (!userData || !userData.medicalRecords || userData.medicalRecords.length === 0) {
+            toast.error("No medical records to export");
+            return;
+        }
+
+        setIsExporting(true);
+        try {
+            // Create a new PDF document
+            const pdf = new jsPDF();
+
+            // Add title and patient information
+            pdf.setFontSize(18);
+            pdf.text("Medical Records Report", 105, 20, { align: "center" });
+
+            pdf.setFontSize(12);
+            pdf.text(`Patient: ${userData.name || "Unknown"}`, 20, 35);
+            pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 42);
+
+            // Add separator line
+            pdf.setDrawColor(200, 200, 200);
+            pdf.line(20, 45, 190, 45);
+
+            // Group records by type
+            const recordsByType: { [key: string]: any[] } = {};
+
+            userData.medicalRecords.forEach(record => {
+                if (!recordsByType[record.recordType]) {
+                    recordsByType[record.recordType] = [];
+                }
+                recordsByType[record.recordType].push(record);
+            });
+
+            let yPosition = 55;
+
+            // Add each record type with its records
+            Object.entries(recordsByType).forEach(([type, records]) => {
+                if (yPosition > 250) {
+                    pdf.addPage();
+                    yPosition = 20;
+                }
+
+                // Add section title
+                pdf.setFontSize(14);
+                pdf.text(`${type} Records (${records.length})`, 20, yPosition);
+                yPosition += 10;
+
+                // Create table for records
+                const tableData = records.map(record => [
+                    record.title,
+                    formatDate(record.date),
+                    record.doctorName || '-',
+                    record.hospitalName || '-'
+                ]);
+
+                // Add table with autoTable plugin
+                autoTable(pdf, {
+                    startY: yPosition,
+                    head: [['Title', 'Date', 'Doctor', 'Hospital/Clinic']],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [66, 139, 202] },
+                    margin: { top: 10 },
+                });
+
+                yPosition = (pdf as any).lastAutoTable.finalY + 20;
+            });
+
+            // Add a summary page with details of selected records
+            if (userData.medicalRecords.length > 0) {
+                pdf.addPage();
+                pdf.setFontSize(16);
+                pdf.text("Record Details", 105, 20, { align: "center" });
+
+                let detailsY = 40;
+
+                userData.medicalRecords.slice(0, 5).forEach((record, index) => {
+                    if (detailsY > 250) {
+                        pdf.addPage();
+                        detailsY = 20;
+                    }
+
+                    pdf.setFontSize(12);
+                    pdf.text(`Record #${index + 1}: ${record.title}`, 20, detailsY);
+                    detailsY += 7;
+
+                    pdf.setFontSize(10);
+                    pdf.text(`Type: ${record.recordType}`, 25, detailsY);
+                    detailsY += 6;
+
+                    pdf.text(`Date: ${formatDate(record.date)}`, 25, detailsY);
+                    detailsY += 6;
+
+                    if (record.doctorName) {
+                        pdf.text(`Doctor: ${record.doctorName}`, 25, detailsY);
+                        detailsY += 6;
+                    }
+
+                    if (record.hospitalName) {
+                        pdf.text(`Hospital/Clinic: ${record.hospitalName}`, 25, detailsY);
+                        detailsY += 6;
+                    }
+
+                    if (record.description) {
+                        pdf.text(`Description: ${record.description.substring(0, 100)}${record.description.length > 100 ? '...' : ''}`, 25, detailsY);
+                        detailsY += 6;
+                    }
+
+                    detailsY += 10;
+                });
+
+                if (userData.medicalRecords.length > 5) {
+                    pdf.text(`... and ${userData.medicalRecords.length - 5} more records`, 20, detailsY);
+                }
+            }
+
+            // Save the PDF
+            pdf.save("medical_records.pdf");
+            toast.success("Medical records exported successfully");
+        } catch (error) {
+            console.error("Error exporting to PDF:", error);
+            toast.error("Failed to export records. Please try again.");
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -82,8 +218,13 @@ const MedicalRecordsPage: React.FC = () => {
                     </Tabs>
 
                     <div className="mt-6 flex items-center justify-end space-x-4">
-                        <Button variant="outline">Export Records</Button>
-                        <Button variant="outline">Print Records</Button>
+                        <Button
+                            variant="outline"
+                            onClick={exportToPDF}
+                            disabled={isExporting || !userData?.medicalRecords?.length}
+                        >
+                            {isExporting ? "Exporting..." : "Export Records to PDF"}
+                        </Button>
                     </div>
                 </main>
             </div>

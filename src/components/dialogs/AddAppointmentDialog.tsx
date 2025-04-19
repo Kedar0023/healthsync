@@ -49,7 +49,7 @@ export function AddAppointmentDialog() {
         },
     });
 
-    const { mutate: addAppointment } = trpc.user.addAppointment.useMutation({
+    const { mutate: addAppointment, isPending } = trpc.user.addAppointment.useMutation({
         onSuccess: () => {
             toast.success("Appointment added successfully");
             setOpen(false);
@@ -64,7 +64,7 @@ export function AddAppointmentDialog() {
     function onSubmit(values: z.infer<typeof formSchema>) {
         addAppointment({
             ...values,
-            date: new Date(values.date),
+            date: values.date,
         });
     }
 
@@ -157,7 +157,9 @@ export function AddAppointmentDialog() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Add Appointment</Button>
+                        <Button type="submit" disabled={isPending}>
+                            {isPending ? "Adding..." : "Add Appointment"}
+                        </Button>
                     </form>
                 </Form>
             </DialogContent>

@@ -28,9 +28,9 @@ import type { TRPCClientErrorLike } from "@trpc/client";
 interface UserData {
     id?: string;
     phone?: string | null;
-    dateOfBirth?: string | null;
+    dateOfBirth?: Date | string | null;
     gender?: string | null;
-    bloodGroup?: string | null;
+    bloodGroup?: string | null; 
 }
 
 const formSchema = z.object({
@@ -45,16 +45,17 @@ export function UpdateHealthProfileDialog({ userData }: { userData?: UserData })
     const utils = trpc.useUtils();
 
     // Format date to YYYY-MM-DD for input
-    const formatDate = (date: string | null | undefined) => {
+    const formatDate = (date: Date | string | null | undefined) => {
         if (!date) return "";
-        return new Date(date).toISOString().split("T")[0];
+        const dateObj = date instanceof Date ? date : new Date(date);
+        return dateObj.toISOString().split("T")[0];
     };
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             phone: userData?.phone || "",
-            dateOfBirth: formatDate(userData?.dateOfBirth),
+            dateOfBirth: userData?.dateOfBirth ? formatDate(userData.dateOfBirth) : "",
             gender: userData?.gender || "",
             bloodGroup: userData?.bloodGroup || "",
         },
@@ -96,7 +97,8 @@ export function UpdateHealthProfileDialog({ userData }: { userData?: UserData })
             bloodGroup: values.bloodGroup,
             gender: values.gender,
             phone: values.phone,
-            dateOfBirth: dateOfBirth as Date
+            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined
+
         });
     }
 

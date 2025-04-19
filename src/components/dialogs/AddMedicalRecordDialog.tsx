@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/tRPC/client/client";
 import { toast } from "sonner";
 import type { TRPCClientErrorLike } from "@trpc/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
     recordType: z.string().min(1, "Record type is required"),
@@ -35,6 +36,20 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+// Record types available for selection
+const RECORD_TYPES = [
+    "Lab Test",
+    "Imaging",
+    "Consultation",
+    "Surgery",
+    "Vaccination",
+    "Allergy Test",
+    "Physical Examination",
+    "Prescription",
+    "Hospitalization",
+    "Other"
+];
 
 export function AddMedicalRecordDialog() {
     const [open, setOpen] = useState(false);
@@ -53,7 +68,7 @@ export function AddMedicalRecordDialog() {
         },
     });
 
-    const { mutate: addMedicalRecord } = trpc.user.addMedicalRecord.useMutation({
+    const { mutate: addMedicalRecord, isPending } = trpc.user.addMedicalRecord.useMutation({
         onSuccess: () => {
             toast.success("Medical record added successfully");
             setOpen(false);
@@ -66,9 +81,12 @@ export function AddMedicalRecordDialog() {
     });
 
     function onSubmit(values: FormValues) {
+        // Convert the date string to a proper Date object
+        // const date = new Date(values.date);
+
         addMedicalRecord({
             ...values,
-            date: new Date(values.date),
+            // date: date,
         });
     }
 
@@ -89,9 +107,23 @@ export function AddMedicalRecordDialog() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Record Type</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., Diagnosis, Lab Result" {...field} />
-                                    </FormControl>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select record type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {RECORD_TYPES.map((type) => (
+                                                <SelectItem key={type} value={type}>
+                                                    {type}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -174,7 +206,9 @@ export function AddMedicalRecordDialog() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Add Record</Button>
+                        <Button type="submit" disabled={isPending}>
+                            {isPending ? "Adding..." : "Add Record"}
+                        </Button>
                     </form>
                 </Form>
             </DialogContent>

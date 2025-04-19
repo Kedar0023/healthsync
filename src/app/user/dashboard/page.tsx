@@ -44,7 +44,20 @@ const Dashboard: React.FC = () => {
 		{ enabled: !!session?.user.id }
 	);
 
-	if (sessionLoading || userLoading || allergiesLoading || conditionsLoading || medicationsLoading) {
+	// Fetch appointments directly
+	const { data: appointments, isLoading: appointmentsLoading } = trpc.user.getAppointments.useQuery(
+		undefined,
+		{ enabled: !!session?.user.id }
+	);
+
+	if (
+		sessionLoading ||
+		userLoading ||
+		allergiesLoading ||
+		conditionsLoading ||
+		medicationsLoading ||
+		appointmentsLoading
+	) {
 		return (
 			<div className="min-h-screen bg-background">
 				<Navbar />
@@ -76,6 +89,8 @@ const Dashboard: React.FC = () => {
 						<CurrentMedications medications={currentMedications} />
 					</div>
 
+					<p className="text-2xl mx-12">Quick Actions</p>
+
 					<Tabs defaultValue="appointments" className="w-full">
 						<TabsList className="grid w-full grid-cols-3">
 							<TabsTrigger value="appointments">Appointments</TabsTrigger>
@@ -84,7 +99,7 @@ const Dashboard: React.FC = () => {
 						</TabsList>
 
 						<TabsContent value="appointments" className="mt-6">
-							<Appointments appointments={userData?.appointments} />
+							<Appointments appointments={appointments} />
 						</TabsContent>
 
 						<TabsContent value="records" className="mt-6">
