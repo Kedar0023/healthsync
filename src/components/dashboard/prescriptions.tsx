@@ -17,10 +17,11 @@ import { toast } from "sonner";
 interface Medication {
     id: string;
     name: string;
+    description?: string | null;
     dosage: string;
     frequency: string;
     when: string;
-    isRestRequired: boolean;
+    sideEffects?: string | null;
 }
 
 interface Prescription {
@@ -35,6 +36,7 @@ interface Prescription {
     status: string;
     notes?: string | null;
 }
+
 
 interface PrescriptionsProps {
     prescriptions?: Prescription[];
@@ -154,11 +156,12 @@ export function Prescriptions({ prescriptions: initialPrescriptions }: Prescript
                                 <p className="text-sm font-medium">When to Take</p>
                                 <p>{selectedPrescription.medication.when}</p>
                             </div>
-                            {selectedPrescription.medication.isRestRequired && (
+                            {selectedPrescription.medication.sideEffects && (
                                 <div>
                                     <p className="text-sm font-medium text-amber-600">
-                                        Rest Required
+                                        Side Effects
                                     </p>
+                                    <p className="text-sm">{selectedPrescription.medication.sideEffects}</p>
                                 </div>
                             )}
                             <div className="grid grid-cols-2 gap-4">

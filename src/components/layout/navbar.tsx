@@ -42,7 +42,7 @@ const Navbar = () => {
 		redirect("/auth/login")
 	}
 	// This would come from your auth state in a real app
-	const isLoggedIn = true;
+	const isLoggedIn :boolean = userdata.data?.user ? true :false;
 
 	const handleLogout = async () => {
 		try {
@@ -52,7 +52,7 @@ const Navbar = () => {
 			console.error("Logout failed", error);
 		}
 	};
-	console.log(userdata.data?.user)
+	// console.log(userdata.data?.user)
 
 	return (
 		<header className="bg-background border-b sticky top-0 z-50 shadow-sm">

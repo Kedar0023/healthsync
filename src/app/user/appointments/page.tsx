@@ -21,7 +21,7 @@ const AppointmentsPage: React.FC = () => {
             <div className="min-h-screen bg-background">
                 <Navbar />
                 <div className="flex justify-center items-center h-screen">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-zinc-900"></div>
                 </div>
             </div>
         );
@@ -33,7 +33,9 @@ const AppointmentsPage: React.FC = () => {
         <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
             <div className="flex flex-1">
-                <Sidebar />
+                <div className="sticky top-16 h-[95%] bg-green-200">
+                    <Sidebar />
+                </div>
                 <main className="flex-1 p-4 md:p-6 overflow-auto">
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold">Appointments</h1>

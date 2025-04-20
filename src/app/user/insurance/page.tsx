@@ -7,6 +7,14 @@ import { InsuranceDisplay } from "@/components/dashboard/insurance";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddInsuranceDialog } from "@/components/dialogs/AddInsuranceDialog";
 import { Button } from "@/components/ui/button";
+import { toast, Toaster } from "sonner";
+
+export const handleUnavailableFeature = () => {
+    toast.info("This feature is not available yet", {
+        description: "We're working on this feature and will release it soon!",
+        duration: 3000,
+    });
+};
 
 const InsurancePage: React.FC = () => {
     // Get session first to get user ID
@@ -29,8 +37,10 @@ const InsurancePage: React.FC = () => {
         );
     }
 
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
+            <Toaster />
             <Navbar />
             <div className="flex flex-1">
                 <Sidebar />
@@ -54,7 +64,7 @@ const InsurancePage: React.FC = () => {
                                         <p className="text-muted-foreground mb-4">
                                             No recent claims to display
                                         </p>
-                                        <Button variant="outline">Submit a Claim</Button>
+                                        <Button variant="outline" onClick={handleUnavailableFeature}>Submit a Claim</Button>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -96,7 +106,7 @@ const InsurancePage: React.FC = () => {
                                         <p className="text-muted-foreground mb-4">
                                             No insurance documents available
                                         </p>
-                                        <AddInsuranceDialog />
+                                        
                                     </div>
                                 )}
                             </CardContent>

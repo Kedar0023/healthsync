@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { handleUnavailableFeature } from "@/app/user/insurance/page";
 
 interface Insurance {
     id: string;
@@ -62,7 +63,7 @@ export function InsuranceDisplay({ insurances = [] }: InsuranceDisplayProps) {
                         <p className="text-muted-foreground mb-4">
                             No insurance information available
                         </p>
-                        <Button onClick={handleInsuranceUpdate} disabled={isLoading}>Add Insurance</Button>
+                        <Button onClick={handleUnavailableFeature}>Add Insurance</Button>
                     </div>
                 )}
             </CardContent>

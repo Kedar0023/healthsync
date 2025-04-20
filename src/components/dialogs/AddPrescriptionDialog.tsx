@@ -41,10 +41,11 @@ type FormValues = z.infer<typeof formSchema>;
 interface Medication {
     id: string;
     name: string;
+    description?: string | null;
     dosage: string;
     frequency: string;
     when: string;
-    isRestRequired: boolean;
+    sideEffects?: string | null;
 }
 
 export function AddPrescriptionDialog() {

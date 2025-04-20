@@ -14,6 +14,7 @@ import { CurrentMedications } from "@/components/dashboard/current-medications";
 import { Appointments } from "@/components/dashboard/appointments";
 import { MedicalRecords } from "@/components/dashboard/medical-records";
 import { Prescriptions } from "@/components/dashboard/prescriptions";
+import { Toaster } from "sonner";
 
 const Dashboard: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -70,9 +71,12 @@ const Dashboard: React.FC = () => {
 
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
+			<Toaster/>
 			<Navbar />
 			<div className="flex flex-1">
-				<Sidebar />
+				<div className="sticky top-16 h-[95%] bg-green-200">
+					<Sidebar />
+				</div>
 				<main className="flex-1 p-4 md:p-6 overflow-auto">
 					<div className="mb-8">
 						<h1 className="text-3xl font-bold">Your Health Dashboard</h1>
@@ -107,7 +111,7 @@ const Dashboard: React.FC = () => {
 						</TabsContent>
 
 						<TabsContent value="prescriptions" className="mt-6">
-							<Prescriptions prescriptions={userData?.prescriptions} />
+							<Prescriptions prescriptions={userData?.prescriptions } />
 						</TabsContent>
 					</Tabs>
 				</main>

@@ -13,13 +13,10 @@ interface HealthCardProps {
 }
 
 export function HealthCard({ userData }: HealthCardProps) {
-    // QR code data would be a URL or encoded data in a real app
-    const qrCodeData = userData
-        ? JSON.stringify({
-            id: userData.id,
-            name: userData.name || undefined,
-        })
-        : JSON.stringify({ message: "No information available" });
+    // Generate URL for the QR code
+    const qrCodeUrl = userData
+        ? `${window.location.origin}/medical_details/${userData.id}`
+        : `${window.location.origin}/medical_details/unknown`;
 
     return (
         <Card>
@@ -30,7 +27,7 @@ export function HealthCard({ userData }: HealthCardProps) {
             <CardContent>
                 <div className="flex flex-col items-center">
                     <div className="bg-white p-4 rounded-lg mb-4">
-                        <QRCodeSVG value={qrCodeData} size={180} />
+                        <QRCodeSVG value={qrCodeUrl} size={180} />
                     </div>
                     <p className="text-sm text-center text-muted-foreground">
                         {userData

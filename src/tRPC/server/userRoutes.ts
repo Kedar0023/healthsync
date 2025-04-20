@@ -411,7 +411,7 @@ const userRouter = route({
 				recordType: z.string(),
 				title: z.string(),
 				description: z.string().optional(),
-				date: z.string(),
+				date: z.string(), // expecting ISO string or date input
 				doctorName: z.string().optional(),
 				hospitalName: z.string().optional(),
 				fileUrl: z.string().optional(),
@@ -424,6 +424,7 @@ const userRouter = route({
 			return prisma.medicalRecord.create({
 				data: {
 					...input,
+					date: new Date(input.date), // ✅ fix here
 					userId: session.user.id,
 				},
 			});
@@ -483,10 +484,11 @@ const userRouter = route({
 		.input(
 			z.object({
 				name: z.string(),
+				description: z.string().optional(),
 				dosage: z.string(),
 				frequency: z.string(),
 				when: z.string(),
-				isRestRequired: z.boolean().default(false),
+				sideEffects: z.string().optional(),
 			})
 		)
 		.mutation(async ({ input }) => {
@@ -503,10 +505,11 @@ const userRouter = route({
 			z.object({
 				id: z.string(),
 				name: z.string().optional(),
+				description: z.string().optional(),
 				dosage: z.string().optional(),
 				frequency: z.string().optional(),
 				when: z.string().optional(),
-				isRestRequired: z.boolean().optional(),
+				sideEffects: z.string().optional(),
 			})
 		)
 		.mutation(async ({ input }) => {

@@ -10,6 +10,7 @@ import {
     Menu,
     PillIcon,
     Shield,
+    StarsIcon,
     UserIcon,
     Users,
 } from "lucide-react";
@@ -48,6 +49,11 @@ const sidebarItems: SidebarItem[] = [
         href: "/user/prescriptions",
     },
     {
+        title: "Chat with AI",
+        icon: <StarsIcon color="#4caae0" className="h-5 w-5" />,
+        href: "/user/chatbot",
+    },
+    {
         title: "Insurance",
         icon: <Shield className="h-5 w-5" />,
         href: "/user/insurance",
@@ -68,7 +74,7 @@ export function Sidebar({ className }: SidebarProps) {
     const pathname = usePathname();
 
     const SidebarContent = (
-        <div className="flex h-full flex-col gap-2">
+        <div className="flex h-full flex-col gap-2 ">
             <div className="pl-3 py-2">
                 <h2 className="text-lg font-semibold">HealthSync</h2>
                 <p className="text-sm text-muted-foreground">Your Health Dashboard</p>

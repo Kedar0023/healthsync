@@ -27,10 +27,11 @@ import type { TRPCClientErrorLike } from "@trpc/client";
 
 const formSchema = z.object({
     name: z.string().min(1, "Medication name is required"),
+    description: z.string().optional(),
     dosage: z.string().min(1, "Dosage is required"),
     frequency: z.string().min(1, "Frequency is required"),
     when: z.string().min(1, "Time of day is required"),
-    isRestRequired: z.boolean(),
+    sideEffects: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -69,10 +70,11 @@ export function AddMedicationDialog() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
+            description: "",
             dosage: "",
             frequency: "",
             when: "",
-            isRestRequired: false,
+            sideEffects: "",
         },
     });
 
@@ -251,21 +253,27 @@ export function AddMedicationDialog() {
 
                         <FormField
                             control={form.control}
-                            name="isRestRequired"
+                            name="description"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                <FormItem>
+                                    <FormLabel>Description</FormLabel>
                                     <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                        />
+                                        <Input placeholder="Enter description" {...field} />
                                     </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel>Rest Required</FormLabel>
-                                        <p className="text-sm text-muted-foreground">
-                                            Check if rest is required after taking this medication
-                                        </p>
-                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="sideEffects"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Side Effects</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Enter side effects" {...field} />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
