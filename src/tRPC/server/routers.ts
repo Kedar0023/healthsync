@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import userRouter from "./userRoutes";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
+import AI_routes from "./generate_with_AI";
 export const approuter = route({
 	// sayhi: procedure.query(() => {
 	// 	return { message: "hi, There !" };
@@ -22,6 +23,7 @@ export const approuter = route({
 	}),
 
 	user: userRouter,
+	AI : AI_routes,
 	getUserData: procedure
 		.input(
 			z.object({

@@ -1,84 +1,80 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import Link from "next/link";
 
-const features = [
-	"📤 Share data via Link or QR Code",
-	"🤖 AI Chatbot for Healthcare",
-	"💳 Insurance Support",
-	"📅 AI-powered Appointment Booking",
-	"🗂️ Quick Access to Medical Records",
-];
-
-export default function Home() {
-	const [mounted, setMounted] = useState(false);
-	useEffect(() => setMounted(true), []);
-
-	if (!mounted) return null;
-
+  const LandingPage =()=> {
 	return (
-		<main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-8">
-			<ModeToggle/>
+		<div className="min-h-screen bg-gradient-to-br from-[#f8fbff] to-[#e0f7fa] text-gray-800">
+			{/* Hero Section */}
+			<section className="text-center py-24 px-6 max-w-5xl mx-auto">
+				<motion.h1
+					initial={{ opacity: 0, y: 40 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}
+					className="text-5xl font-bold mb-6"
+				>
+					Smarter Healthcare Starts Here 🏥
+				</motion.h1>
+				<motion.p
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.2, duration: 0.6 }}
+					className="text-lg max-w-2xl mx-auto mb-8"
+				>
+					Your personal AI-powered health assistant. Manage prescriptions, track medical history, and share health info with a simple QR code.
+				</motion.p>
+				<Button className="text-lg px-6 py-4 rounded-2xl shadow-xl">
+					Get Started <ArrowRight className="ml-2 w-5 h-5" />
+				</Button>
+			</section>
 
-			<motion.h1
-				initial={{ opacity: 0, y: -20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.6 }}
-				className="text-4xl md:text-6xl font-bold text-center mb-6"
-			>
-				HealthSync 🩺
-			</motion.h1>
-
-			<motion.p
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ delay: 0.2, duration: 0.6 }}
-				className="text-lg md:text-xl text-center mb-8 max-w-2xl"
-			>
-				Your personal health hub – secure, smart, and seamless.
-			</motion.p>
-
-			<motion.div
-				className="grid md:grid-cols-2 gap-4 max-w-4xl w-full mb-10"
-				initial="hidden"
-				animate="visible"
-				variants={{
-					hidden: {},
-					visible: {
-						transition: {
-							staggerChildren: 0.2,
+			{/* Features Section */}
+			<section className="bg-white py-20 px-6">
+				<div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+					{[
+						{
+							title: "AI Health Chatbot 🤖",
+							desc: "Get instant answers & health guidance powered by AI."
 						},
-					},
-				}}
-			>
-				{features.map((feature, i) => (
-					<motion.div
-						key={i}
-						variants={{
-							hidden: { opacity: 0, y: 20 },
-							visible: { opacity: 1, y: 0 },
-						}}
-					>
-						<Card className="rounded-2xl shadow-md">
-							<CardContent className="p-6 text-lg font-medium">
-								{feature}
+						{
+							title: "QR Code Sharing 📲",
+							desc: "Easily share your health data securely via QR code."
+						},
+						{
+							title: "Prescription Manager 💊",
+							desc: "Track and manage your medicines with reminders."
+						},
+						{
+							title: "Appointment Scheduler 📅",
+							desc: "Book, view, and manage doctor appointments."
+						},
+						{
+							title: "Medical History Tracker 📚",
+							desc: "Keep your health records organized in one place."
+						},
+						{
+							title: "Secure & Private 🔒",
+							desc: "Your data stays safe with top-level encryption."
+						},
+					].map((feature, idx) => (
+						<Card key={idx} className="rounded-2xl shadow-md hover:shadow-xl transition duration-300">
+							<CardContent className="p-6">
+								<h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+								<p className="text-gray-600 text-sm">{feature.desc}</p>
 							</CardContent>
 						</Card>
-					</motion.div>
-				))}
-			</motion.div>
+					))}
+				</div>
+			</section>
 
-			<motion.div
-				initial={{ opacity: 0, scale: 0.95 }}
-				animate={{ opacity: 1, scale: 1 }}
-				transition={{ delay: 0.4, duration: 0.5 }}
-			>
-				<Link className="text-lg px-6 py-4 rounded-xl bg-blue-400 text-zinc-950" href={"/user/dashboard"}>Get Started</Link>
-			</motion.div>
-		</main>
+			{/* Footer */}
+			<footer className="bg-[#def2f1] text-center py-6 text-sm">
+				<p>© 2025 HealthSync. All rights reserved.</p>
+			</footer>
+		</div>
 	);
 }
+
+export default LandingPage
