@@ -68,7 +68,7 @@ export default function ChatbotPage() {
                     <Sidebar />
                 </div>
                 <div className="flex-1 flex flex-col h-[calc(100vh-4rem)]">
-                    <main className="flex-1 overflow-auto p-4 bg-sky-100">
+                    <main className="flex-1 overflow-auto p-4">
                         <h5 className='text-3xl font-bold pl-10 '>AI Health Assistant</h5>
                         <p className="mb-5 pl-10">An intelligent virtual assistant designed to provide trusted health information,</p>
                         <div className="space-y-4 max-w-3xl mx-auto ">
