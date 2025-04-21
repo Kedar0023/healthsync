@@ -76,6 +76,30 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+    /* Existing colors remain the same until... */
+  
+  /* Modified primary color to a healthcare-friendly sky blue */
+  --primary: oklch(0.65 0.15 240); /* Soft sky blue */
+  --primary-foreground: oklch(0.985 0 0); /* Kept white for contrast */
+  
+  /* Adding some sky-blue accents */
+  --accent: oklch(0.85 0.1 220); /* Lighter sky blue for accents */
+  --accent-foreground: oklch(0.205 0 0); /* Dark text for contrast */
+  
+  /* Adding a subtle blue tint to the muted colors */
+  --muted: oklch(0.97 0.02 220); /* Very faint blue tint */
+  
+  /* Chart colors - keeping first one as primary blue, adjusting others */
+  --chart-1: oklch(0.65 0.15 240); /* Primary sky blue */
+  --chart-2: oklch(0.6 0.118 184.704); /* Teal-ish - good for healthcare */
+  --chart-3: oklch(0.7 0.1 200); /* Another blue variant */
+  --chart-4: oklch(0.8 0.08 160); /* Blue-green */
+  --chart-5: oklch(0.75 0.12 220); /* Bright sky blue */
+  
+  /* Sidebar colors */
+  --sidebar-primary: oklch(0.65 0.15 240); /* Matching primary */
+
 }
 
 .dark {
@@ -110,6 +134,23 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+    /* Dark mode adjustments */
+  --primary: oklch(0.75 0.12 220); /* Brighter sky blue for dark mode */
+  --primary-foreground: oklch(0.205 0 0); /* Dark text */
+  
+  --accent: oklch(0.65 0.15 240); /* Primary blue as accent */
+  --accent-foreground: oklch(0.985 0 0); /* White text */
+  
+  /* Chart colors for dark mode */
+  --chart-1: oklch(0.65 0.15 240); /* Primary blue */
+  --chart-2: oklch(0.7 0.15 200); /* Lighter blue */
+  --chart-3: oklch(0.55 0.15 260); /* Deeper blue */
+  --chart-4: oklch(0.6 0.1 220); /* Medium blue */
+  --chart-5: oklch(0.75 0.1 180); /* Blue-green */
+  
+  /* Sidebar in dark mode */
+  --sidebar-primary: oklch(0.65 0.15 240); /* Consistent primary blue */
 }
 
 @layer base {
